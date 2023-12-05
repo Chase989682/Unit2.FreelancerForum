@@ -15,33 +15,51 @@ New freelancers continue to appear every few seconds, and the average starting p
 // create an array of of the initial freelancers on the page: Alice and Bob
 // then create an array of the new freelancers that will be added by render and
 // interval functions
+
 document.addEventListener("DOMContentLoaded", function () {
   const root = document.querySelector("#container");
-
-  // Create table and its elements
+  const priceValue = document.querySelector("#priceValue");
   const table = document.createElement("table");
-  const tableHead = document.createElement("thead");
-  const tableBody = document.createElement("tbody");
-  const headerRow1 = document.createElement("tr");
-  const headerRow2 = document.createElement("tr");
-  const headerRow1Data = document.createElement("td");
-  const headerRow2Data = document.createElement("td");
-  const h1 = document.createElement("h1");
-  const h2 = document.createElement("h2");
+  // Create the elements of the existing table and store it in a function
+  function tableHeader(table) {
+    const tHead = document.createElement("th");
+    //create the header rows
+    const headerRow = document.createElement("tr");
+    //create an array that will store the headers
+    const headers = ["Name", "Occupation", "Starting Price"];
+    //loop over those headings and store them into headings
+    for (const header of headers) {
+      const th = document.createElement("th");
+      th.textContent = header;
+      //append that to the header row
+      headerRow.appendChild(th);
+    }
+    //append the header row to the thead
+    tHead.appendChild(headerRow);
+    //apend that to the table
+    table.appendChild(tHead);
+  }
 
-  // Set text content for h1
-  h1.textContent = "Freelancer Forum";
+  // root.appendChild(table);
+  tableHeader(table);
+  //create a table
+  function tableBody(table, freelancers) {
+    const tBody = document.createElement("tbody");
+    //create a table row for every freelancer using a for in loop
+    for (const freelancer of initialFreelancers) {
+      const tableRow = document.createElement("tr");
 
-  // Append elements to the root
-  root.appendChild(table);
-  table.appendChild(tableHead);
-  tableHead.appendChild(headerRow1);
-  tableHead.appendChild(headerRow2);
-  headerRow1.appendChild(headerRow1Data);
-  headerRow2.appendChild(headerRow2Data);
-  headerRow1Data.appendChild(h1);
-  headerRow2Data.appendChild(h2);
-  table.appendChild(tableBody);
+      //add name, occupation, and price to the cells
+      // create a loop within the above loop
+      for (const key in freelancer) {
+        const cell = document.createElement("td");
+        cell.textContent = freelancer[key];
+        tableRow.appendChild(cell);
+      }
+      tBody.appendChild(tableRow);
+    }
+    return tBody;
+  }
 
   const initialFreelancers = [
     { name: "Alice", occupation: "Teacher", price: 30 },
@@ -56,59 +74,71 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Gregory", occupation: "Architech", price: 287 },
   ];
 
-  populateTable(newFreelancers[0]);
-
   //create a function to calculate the total price for the initial freelancers
   function calculateAveragePrice(freelancers) {
-    let totalPrice = 0;
-    freelancers.forEach((freelancers) => {
-      totalPrice += freelancers.price;
-    });
-    return totalPrice / freelancers.length;
+    const totalPrice = freelancers.reduce((acc, curr) => acc + curr.price, 0);
+    const averagePrice = totalPrice / freelancers.length;
+    priceValue.innerHTML = Math.floor(averagePrice);
   }
+  function appendTableToContainer(table) {
+    const root = document.querySelector("#container");
+    const h2 = document.createElement("h2");
+    h2.innerHTML = "Available Freelancers";
+    root.appendChild(h2);
+    root.appendChild(table);
+  }
+
+  function render(initialState) {
+    const table = document.createElement("table");
+    tableHeader(table);
+    tableBody(table, initialState);
+    appendTableToContainer(table);
+  }
+  render(initialFreelancers);
+  render(newFreelancers);
 
   //create a function to update the freelancer list and the average price at an interval
   function updateFreelancersListAndAverage(newData) {
     initialFreelancers.push(...newData);
-    initialPriceAverage = calculateAveragePrice(initialFreelancers);
-    h2.textContent = initialPriceAverage.toFixed(2);
-    headerRow2Data.innerHTML = "";
-    headerRow2Data.appendChild(h2);
+    calculateAveragePrice(initialFreelancers);
+    const newTBody = tableBody(newFreelancers);
+    table.appendChild(newTBody);
   }
+
   updateFreelancersListAndAverage(newFreelancers);
-  const initialAverage = calculateAveragePrice(initialFreelancers);
-  const initialAverageElement = document.createElement("h2");
-  initialAverageElement.textContent = initialAverage.toFixed(2);
-  headerRow2Data.appendChild(initialAverageElement);
-  setInterval(() => {
-    updateFreelancersListAndAverage(newFreelancers);
-  }, 4000);
+  root.appendChild(table);
+  tableHeader(table);
+  const initialTBody = tableBody(initialFreelancers);
+  table.appendChild(initialTBody);
 
   // use a query selector to select the main container already implemented into the body
   //and then create the elements and append them as children to that ID
   //root.appendChild(child)
 
-  //tableBody.appendChild(tableBodyRow); goes into loop
-
   //create a foreach loop that adds a new row to the body and each key
   //value pair to the data cells
-  function populateTable(freelancer) {
-    const bodyRow = document.createElement("tr");
+  // function populateTable(table, freelancers) {
+  //   freelancers.forEach((freelancer) => {
+  //     const bodyRow = document.createElement("tr");
 
-    for (const key in freelancer) {
-      if (freelancer.hasOwnProperty(key)) {
-        //create the data cell
-        const cell = document.createElement("td");
-        // add the content to that row
-        cell.textContent = freelancer[key];
-        //append that to the rows
-        bodyRow.appendChild(cell);
-      }
-    }
-    tableBody.appendChild(bodyRow);
-  }
-  populateTable(initialFreelancers);
+  //     for (const key in freelancer) {
+  //       if (freelancer.hasOwnProperty(key)) {
+  //         //create the data cell
+  //         const cell = document.createElement("td");
+  //         // add the content to that row
+  //         cell.textContent = freelancer[key];
+  //         //append that to the rows
+  //         bodyRow.appendChild(cell);
+  //       }
+  //     }
+  //     tBody.appendChild(bodyRow);
+  //   });
+  //   table.appendChild(tBody);
+  // }
+
   setInterval(() => {
-    updateFreelancersListAndAverage(newFreelancers);
+    updateFreelancersListAndAverage(newFreeLancers);
+    const newTBody = tableBody(newFreelancers);
+    table.appendChild(newTBody);
   }, 4000);
 });
